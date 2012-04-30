@@ -5,7 +5,7 @@ This is my modified version of wneilson's sencha-SlideNavigation, adding the fun
 of a `Ext.navigation.View`_ -- the ability to push and pop other views on top of it, complete
 with animation.
 
-.. _ `Ext.navigation.View`: http://docs.sencha.com/touch/2-0/#!/api/Ext.navigation.View
+.. _`Ext.navigation.View`: http://docs.sencha.com/touch/2-0/#!/api/Ext.navigation.View
 
 It is even more of a work in progress than the original, so use with caution!
 
