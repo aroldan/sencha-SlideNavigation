@@ -17,6 +17,7 @@ Ext.define('Ext.ux.slidenavigation.View', {
         'Ext.data.Model',
         'Ext.data.Store',
         'Ext.dataview.List',
+        'Ext.ux.slidenavigation.InternalContainer'
     ],
     
     xtype: 'slidenavigationview',
@@ -36,7 +37,36 @@ Ext.define('Ext.ux.slidenavigation.View', {
                 ui: 'light'
             }]
         },
-        
+
+        layout: {
+            type: 'card',
+            animation: {
+                duration: 300,
+                easing: 'ease-out',
+                type: 'slide',
+                direction: 'left'
+            }
+        },
+
+        /**
+         * @cfg {Boolean} useTitleForBackButtonText
+         * Set to false if you always want to display the {@link #defaultBackButtonText} as the text
+         * on the back button. True if you want to use the previous views title.
+         * @private
+         * @accessor
+         */
+        useTitleForBackButtonText: null,    
+
+        /**
+         * @cfg {String} defaultBackButtonText
+         * The text to be displayed on the back button if:
+         * a) The previous view does not have a title
+         * b) The {@link #useTitleForBackButtonText} configuration is true.
+         * @private
+         * @accessor
+         */
+        defaultBackButtonText: 'Back',
+
         /**
          * @cfg {Object} container Configuration for the container
          */
@@ -172,6 +202,11 @@ Ext.define('Ext.ux.slidenavigation.View', {
             this.list,
             this.container
         ]);
+
+        this.relayEvents(this.container, {
+            add: 'push',
+            remove: 'pop'
+        });
         
         // TODO: Make this optional, perhaps by defining
         // "selected: true" in the items list
@@ -200,12 +235,9 @@ Ext.define('Ext.ux.slidenavigation.View', {
      *  config, see ``slideButtonDefaults``.
      */
     createSlideButton: function(el, config) {
-        var me = this,
-            parent = el.down(config.selector);
-        
-        if (parent) {
-            return parent.add(Ext.merge(me.slideButtonDefaults, config));
-        }
+        var me = this;
+        return this.container.setSliderButton(Ext.create("Ext.Button", 
+            Ext.merge(me.slideButtonDefaults, config)));
         
         return false;
     },
@@ -433,17 +465,22 @@ Ext.define('Ext.ux.slidenavigation.View', {
      *  the navigation list.
      */
     createContainer: function() {
-        return Ext.create('Ext.Container', Ext.merge({}, this.config.container, {
-            docked: 'left',
-            cls: 'x-slidenavigation-container',
-            style: 'width: 100%; height: 100%; position: absolute; opacity: 1; z-index: 5',
-            docked: 'left',
-            layout: 'card',
+        var parent = this;
+        var cont = Ext.create('Ext.ux.slidenavigation.InternalContainer', Ext.merge({}, this.config.container, {
+            layout : {
+                type: 'card',
+                animation: {
+                    duration: 300,
+                    easing: 'ease-out',
+                    type: 'slide',
+                    direction: 'left'
+                }
+            },
             draggable: {
                 direction: 'horizontal',
                 constraint: {
                     min: { x: 0, y: 0 },
-                    max: { x: this.config.list.maxDrag || Math.max(screen.width, screen.height), y: 0 }
+                    max: { x: this.config.list.maxDrag ||Math.max(screen.width, screen.height), y: 0 }
                 },
                 listeners: {
                     dragstart: {
@@ -467,5 +504,45 @@ Ext.define('Ext.ux.slidenavigation.View', {
                 }
             }
         }));
+
+        return cont;
+    },
+
+    /**
+     * @private
+     * Called when the user taps on the back button
+     */
+    onBackButtonTap: function() {
+        this.pop();
+        this.fireEvent('back', this);
+    },
+
+    /**
+     * Pushes a new view into this navigation view using the default animation that this view has.
+     * @param {Object} view The view to push
+     * @return {Ext.Component} The new item you just pushed
+     */
+    push: function(view) {
+        return this.container.doPush(view);
+    },
+
+    /**
+     * Removes the current active view from the stack and sets the previous view using the default animation
+     * of this view.
+     * @param {Number} count The number of views you want to pop
+     * @return {Ext.Component} The new active item
+     */
+    pop: function(count) {
+        if (this.container.beforePop(count)) {
+            return this.container.doPop();
+        }
+    },
+
+    /**
+     * Resets the view by removing all items between the first and last item.
+     * @return {Ext.Component} The view that is now active
+     */
+    reset: function() {
+        return this.container.reset();
     }
 });

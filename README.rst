@@ -1,5 +1,16 @@
-Slide Navigation
-================
+Slide Navigation with NavigationView Functionality!
+===================================================
+
+This is my modified version of wneilson's sencha-SlideNavigation, adding the functionality
+of a `Ext.navigation.View`_ -- the ability to push and pop other views on top of it, complete
+with animation.
+
+.. _ `Ext.navigation.View`: http://docs.sencha.com/touch/2-0/#!/api/Ext.navigation.View
+
+It is even more of a work in progress than the original, so use with caution!
+
+Original Intro
+--------------
 
 This is an attempt to make a Facebook-like navigation panel for Sencha Touch 2.
 To see a current working demo, visit `this page`_ on a mobile device.  To see the
