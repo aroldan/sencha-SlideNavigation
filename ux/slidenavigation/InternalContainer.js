@@ -142,8 +142,8 @@ Ext.define('Ext.ux.slidenavigation.InternalContainer', {
     },
 
     doPush: function(view) {
-    	this.add(view);
     	this.hideSliderButton();
+    	this.add(view);
     },
     doPop: function() {
         var me = this,

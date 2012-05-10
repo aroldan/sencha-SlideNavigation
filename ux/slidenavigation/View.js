@@ -277,6 +277,7 @@ Ext.define('Ext.ux.slidenavigation.View', {
         if (this.config.closeOnSelect) {
             this.closeContainer(this.config.selectSlideDuration);
         }
+        list.deselectAll();
     },
     
     onContainerDrag: function(draggable, e, offset, eOpts) {
