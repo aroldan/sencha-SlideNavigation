@@ -210,10 +210,7 @@ Ext.define('Ext.ux.slidenavigation.View', {
         
         // TODO: Make this optional, perhaps by defining
         // "selected: true" in the items list
-        // try {
         this.list.select(0);
-        // } catch (err) {
-        // }
     },
     
     /**
