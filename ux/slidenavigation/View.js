@@ -73,12 +73,12 @@ Ext.define('Ext.ux.slidenavigation.View', {
         container: {},
 
         /**
-         * @cfg {Array} items An array of items to put into the navigation list.
+         * @cfg {Array} items An array of items to initially put into the navigation list.
          * The items can either be Ext components or special objects with a "handler"
          * key, which should be a function to execute when selected.  Additionally, you
          * can define the order of the items by defining an 'order' parameter.
          */        
-        items: [],
+        startItems: [],
         
         /**
          * @cfg {Object} groups Mapping of group name to order.  For example,
@@ -155,7 +155,7 @@ Ext.define('Ext.ux.slidenavigation.View', {
         /**
          *  Add the items into the list.
          */
-        me.addItems(me.config.items || []);
+        me.addItems(me.config.startItems || []);
         delete me.config.items;
         
         me.callParent(arguments);
@@ -210,7 +210,10 @@ Ext.define('Ext.ux.slidenavigation.View', {
         
         // TODO: Make this optional, perhaps by defining
         // "selected: true" in the items list
+        // try {
         this.list.select(0);
+        // } catch (err) {
+        // }
     },
     
     /**
@@ -227,6 +230,20 @@ Ext.define('Ext.ux.slidenavigation.View', {
                 me._indexCount++;
             }
             me.store.add(item);
+        });
+    },
+
+    /**
+     *  If an item with the given title exists in the list, remove it.
+     */
+    removeItemByTitle: function(itemTitle) {
+        var me = this;
+
+        Ext.each(this.store.data.items, function(item, index) {
+            if(item.data.title == itemTitle) {
+                me.store.remove(item);
+                return false; // only remove first match
+            }
         });
     },
     
@@ -269,7 +286,7 @@ Ext.define('Ext.ux.slidenavigation.View', {
         }
         
         if (Ext.isFunction(this._cache[index])) {
-            this._cache[index]();
+            this._cache[index](this);
         } else {
             container.setActiveItem(this._cache[index]);
         }
@@ -290,7 +307,10 @@ Ext.define('Ext.ux.slidenavigation.View', {
     
     onContainerDragstart: function(draggable, e, offset, eOpts) {
         if (this.config.slideSelector == false) {
-            return false;
+            if(this.isClosed()) {
+                return false;
+            };
+            return true;
         }
         
         if (this.config.slideSelector) {
@@ -363,6 +383,7 @@ Ext.define('Ext.ux.slidenavigation.View', {
     closeContainer: function(duration) {
         var duration = duration || this.config.slideDuration;
         this.moveContainer(0, duration);
+        this.fireEvent("listClose");
     },
     
     /**
@@ -372,6 +393,8 @@ Ext.define('Ext.ux.slidenavigation.View', {
         var duration = duration || this.config.slideDuration;
         this.container.addCls('open');
         this.moveContainer(this.config.list.width, duration);
+
+        this.fireEvent("listOpen");
     },
     
     toggleContainer: function(duration) {
@@ -452,7 +475,8 @@ Ext.define('Ext.ux.slidenavigation.View', {
             docked: 'left',
             cls: 'x-slidenavigation-list',
             style: 'position: absolute; top: 0; left: 0; height: 100%;' +
-                   'width: 100% !important; z-index: 2',
+                   'width: 100% !important;',
+            zIndex: 1,
             listeners: {
                 select: this.onSelect,
                 scope: this
@@ -540,10 +564,35 @@ Ext.define('Ext.ux.slidenavigation.View', {
     },
 
     /**
+     * Returns the view at the top of this stack.
+     * @return {Ext.Component} The topmost item
+     */
+    getTopItem: function() {
+        if(this.container) {
+            return this.container.getTopItem();
+        }
+        return null;
+    },
+
+    /**
      * Resets the view by removing all items between the first and last item.
      * @return {Ext.Component} The view that is now active
      */
     reset: function() {
         return this.container.reset();
+    },
+
+    /**
+     * Called upon destroying the view. Destroys all child objects of the view
+     * if they can be destroyed. Prevents item ID collisions upon re-instantiating
+     * the navigation view.
+     */
+    destroy: function() {
+        Ext.Object.each(this._cache, function(key, value) {
+            if (Ext.isObject(value) && Ext.isFunction(value.destroy)) {
+                value.destroy();
+            }
+        });
     }
+
 });
