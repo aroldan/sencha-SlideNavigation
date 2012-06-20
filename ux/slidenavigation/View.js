@@ -235,6 +235,7 @@ Ext.define('Ext.ux.slidenavigation.View', {
             }
             me.store.add(item);
         });
+
     },
 
     /**
@@ -261,7 +262,7 @@ Ext.define('Ext.ux.slidenavigation.View', {
         Ext.each(this.store.data.items, function(item, index) {
             if(item.data.title == itemTitle) {
                 foundItem = item;
-                return falase; // only remove first match
+                return false; // only remove first match
             }
         });
         return foundItem;
