@@ -136,27 +136,34 @@ Ext.define('Ext.ux.slidenavigation.View', {
     },
         
     initConfig: function() {
-        var me = this;
+        var me = this,
+            existingStore;
         
         me._indexCount = 0;
         
         /**
          *  Create the store.
          */
-        me.store = Ext.create('Ext.data.Store', {
-            model: me.getModel(),
-            sorters: 'order',
-            grouper: {
-                property: 'group',
-                sortProperty: 'groupOrder'
-            }
-        });
+        existingStore = Ext.getStore('sliderNavigationStore');
+        if(existingStore) {
+            me.store = existingStore;
+            me.store.removeAll(); // dump store contents
+        } else {
+            me.store = Ext.create('Ext.data.Store', {
+                model: me.getModel(),
+                sorters: 'order',
+                grouper: {
+                    property: 'group',
+                    sortProperty: 'groupOrder'
+                },
+                storeId: "sliderNavigationStore"
+            });
+        }
         
         /**
          *  Add the items into the list.
          */
         me.addItems(me.config.startItems || []);
-        delete me.config.items;
         
         me.callParent(arguments);
         
@@ -243,6 +250,22 @@ Ext.define('Ext.ux.slidenavigation.View', {
             }
         });
     },
+
+    /**
+     * Finds an item in the list by title and returns that item.
+     * 
+     */
+    getItemByTitle: function(itemTitle) {
+        var me = this;
+        var foundItem = null;
+        Ext.each(this.store.data.items, function(item, index) {
+            if(item.data.title == itemTitle) {
+                foundItem = item;
+                return falase; // only remove first match
+            }
+        });
+        return foundItem;
+    },
     
     /**
      *  Creates a button that can toggle the navigation menu.  For an example
@@ -291,7 +314,11 @@ Ext.define('Ext.ux.slidenavigation.View', {
         if (this.config.closeOnSelect) {
             this.closeContainer(this.config.selectSlideDuration);
         }
-        list.deselectAll();
+
+        Ext.defer(function() { // prevent immediate de-selection to stop multi-taps
+            list.deselectAll();
+        }, 50);
+        
     },
     
     onContainerDrag: function(draggable, e, offset, eOpts) {
@@ -354,7 +381,7 @@ Ext.define('Ext.ux.slidenavigation.View', {
                 config: {
                     idProperty: 'index',
                     fields: [
-                        'index', 'title', 'group',
+                        'index', 'title', 'group', 'handler',
                         {
                             name: 'order',
                             defaultValue: 1
@@ -585,11 +612,13 @@ Ext.define('Ext.ux.slidenavigation.View', {
      * the navigation view.
      */
     destroy: function() {
+        this.container.destroy();
         Ext.Object.each(this._cache, function(key, value) {
             if (Ext.isObject(value) && Ext.isFunction(value.destroy)) {
                 value.destroy();
             }
         });
+
     }
 
 });
