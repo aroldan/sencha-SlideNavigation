@@ -77,7 +77,7 @@ Ext.define("SlideNavigationExample.view.Main", {
             xtype: 'container'
         },
         
-        items: [{
+        startItems: [{
             title: 'Item 1',
             group: 'Group 1',
             
@@ -90,10 +90,7 @@ Ext.define("SlideNavigationExample.view.Main", {
                 selector: 'toolbar'
             },
             items: [{
-                xtype: 'toolbar',
-                title: 'Item 1',
-                docked: 'top'
-            },{
+                title: "Item 1",
                 xtype: 'panel',
                 html: '<img src="resources/images/guide.jpg" width="100%" />'
             }]
@@ -177,10 +174,6 @@ Ext.define("SlideNavigationExample.view.Main", {
             group: 'Group 3',
             order: 0,
             items: [{
-                xtype: 'toolbar',
-                title: 'Item 8',
-                docked: 'top'
-            },{
                 xtype: 'container',
                 scrollable: 'vertical',
                 style: 'margin: auto !important; text-align: center;',
