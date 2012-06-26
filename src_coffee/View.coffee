@@ -48,6 +48,14 @@ Ext.define "Ext.ux.slidenavigation.View",
                 type: "slide"
                 direction: "left"
 
+
+        ###
+        @cfg {Object} optional list wrapper configuration. If set, creates a new container for list that
+        contains the navigation list within it.
+        useful for adding additonal information or controls (buttons, version number labels, etc.)
+        to the navigation list.
+        ###
+        listWrapper: null
         
         ###
         @cfg {Boolean} useTitleForBackButtonText
@@ -135,21 +143,22 @@ Ext.define "Ext.ux.slidenavigation.View",
         ###
         closeOnSelect: true
 
+        slideButton: {}
+
     initConfig: ->
-        me = this
         existingStore = undefined
-        me._indexCount = 0
+        @_indexCount = 0
         
         ###
         Create the store.
         ###
         existingStore = Ext.getStore("sliderNavigationStore")
         if existingStore
-            me.store = existingStore
-            me.store.removeAll() # dump store contents
+            @store = existingStore
+            @store.removeAll() # dump store contents
         else
-            me.store = Ext.create("Ext.data.Store",
-                model: me.getModel()
+            @store = Ext.create("Ext.data.Store",
+                model: @getModel()
                 sorters: "order"
                 grouper:
                     property: "group"
@@ -161,49 +170,44 @@ Ext.define "Ext.ux.slidenavigation.View",
         ###
         Add the items into the list.
         ###
-        me.addItems me.config.startItems or []
-        me.callParent arguments
+        @addItems @config.startItems or []
+        @callParent arguments
         
         ###
         This stores the instances of the components created.
         TODO: Support 'autoDestroy'.
         @private
         ###
-        me._cache = {}
+        @_cache = {}
         
         ###
         Default config values used for creating a slideButton.
         ###
-        me.slideButtonDefaults =
+        @slideButtonDefaults =
             xtype: "button"
             iconMask: true
             iconCls: "more"
             name: "slidebutton"
             listeners:
-                release: me.toggleContainer
-                scope: me
+                release: @toggleContainer
+                scope: @
 
-    
-    ###
-    To add the button into a toolbar, you can add the following
-    to any item in your navigation list.
-    ###
-    
-    #selector: ['toolbar']
-    
-    #me.config = Ext.merge({}, me.config, config || {});
-    #return me.callParent(arguments);
     initialize: ->
         @callParent()
         @addCls "x-slidenavigation"
         @list = @createNavigationList()
         @container = @createContainer()
-        @add [ @list, @container ]
+
+        if @config.listWrapper
+            @listWrapper = @createListWrapper()
+            @add [ @listWrapper, @container ]
+        else
+            @add [ @list, @container ]
+
         @relayEvents @container,
             add: "push"
             remove: "pop"
 
-        
         # TODO: Make this optional, perhaps by defining
         # "selected: true" in the items list
         @list.select 0
@@ -254,7 +258,7 @@ Ext.define "Ext.ux.slidenavigation.View",
     Creates a button that can toggle the navigation menu.  For an example
     config, see ``slideButtonDefaults``.
     ###
-    createSlideButton: (el, config) ->
+    createSlideButton: (config) ->
         if !@container.getSliderButton()?
             @container.setSliderButton(Ext.create("Ext.Button", Ext.merge(@slideButtonDefaults, config)))
         return
@@ -264,18 +268,16 @@ Ext.define "Ext.ux.slidenavigation.View",
     Called when an item in the list is tapped.
     ###
     onSelect: (list, item, eOpts) ->
-        me = this
         store = list.getStore()
         index = item.raw.index
-        container = me.container
+        container = @container
 
         if Ext.isFunction item.raw.handler
             item.raw.handler()
         else
-            @reRoot Ext.merge(me.config.defaults, item.raw)
+            @reRoot Ext.merge(@config.defaults, item.raw)
 
-            if item.raw.slideButton
-                @createSlideButton item.raw, item.raw.slideButton
+            @createSlideButton @config.slideButton
 
         if @config.closeOnSelect
             @closeContainer @config.selectSlideDuration
@@ -395,7 +397,6 @@ Ext.define "Ext.ux.slidenavigation.View",
     really does is set the CSS class for the container.
     ###
     setClosed: (closed) ->
-        
         ###
         TODO: Consider some way to mask/disable certain elements when
         the container is opened.  The code commented-out below
@@ -403,25 +404,13 @@ Ext.define "Ext.ux.slidenavigation.View",
         ###
         if closed
             @container.removeCls "open"
-        
-        #
-        #            Ext.each(this.container.getActiveItem().getItems().items, function(item) {
-        #                if (item.maskOnSlide) {
-        #                    item.setMasked(false);
-        #                }
-        #            });
-        #            
         else
             @container.addCls "open"
 
-    
-    #
-    #            Ext.each(this.container.getActiveItem().getItems().items, function(item) {
-    #                if (item.maskOnSlide) {
-    #                    item.setMasked(true);
-    #                }
-    #            });
-    #            
+    createListWrapper: () ->
+        wrapper = Ext.create "Ext.Container", Ext.merge({}, @config.listWrapper)
+        wrapper.add(@list)
+        wrapper 
     
     ###
     Generates a new Ext.dataview.List object to be used for displaying

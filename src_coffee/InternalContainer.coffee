@@ -127,7 +127,8 @@ Ext.define "Ext.ux.slidenavigation.InternalContainer",
         
         #set the new active item to be the new last item of the stack
         @remove innerItems[innerItems.length - 1]
-        @showSliderButton()  if innerItems.length is 2
+        if innerItems.length <= 2
+            @showSliderButton()
         @getActiveItem()
 
     onItemAdd: (item, index) ->
@@ -213,11 +214,13 @@ Ext.define "Ext.ux.slidenavigation.InternalContainer",
     @return {Ext.Component} The view that is now active
     ###
     hardResetWithView : (newView) ->
+        navBar = @getNavigationBar()
         innerItems = @getInnerItems()
         for item in innerItems
             @remove(item)
 
+        navBar.reset() # reset nav bar too
         @add(newView)
-        @getNavigationBar().reset() # reset nav bar too
-
+        @showSliderButton()
+        
         newView

@@ -126,8 +126,23 @@ Ext.define("SlideNavigationExample.view.Main", {
         },{
             title: 'Item 6',
             group: 'Group 3',
-            items: [{
-                html: '<h1>Item 6</h1>'
+            layout: 'vbox',
+            items: [
+            {
+                xtype: 'label',
+                html: "Item 6"
+            },
+            {
+                xtype: 'button',
+                text: 'push another',
+                listeners: {
+                    tap: function(button) {
+                        var cont = button.up("slidenavigationview");
+                        cont.push(Ext.create("Ext.Container"), {
+                            html: "Item 6 drilldown"
+                        });
+                    }
+                }
             }]
         },{
             title: 'Item 7',

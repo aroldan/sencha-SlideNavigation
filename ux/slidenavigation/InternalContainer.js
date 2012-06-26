@@ -134,7 +134,7 @@ Ext.define("Ext.ux.slidenavigation.InternalContainer", {
     me = this;
     innerItems = me.getInnerItems();
     this.remove(innerItems[innerItems.length - 1]);
-    if (innerItems.length === 2) {
+    if (innerItems.length <= 2) {
       this.showSliderButton();
     }
     return this.getActiveItem();
@@ -233,14 +233,16 @@ Ext.define("Ext.ux.slidenavigation.InternalContainer", {
   */
 
   hardResetWithView: function(newView) {
-    var innerItems, item, _i, _len;
+    var innerItems, item, navBar, _i, _len;
+    navBar = this.getNavigationBar();
     innerItems = this.getInnerItems();
     for (_i = 0, _len = innerItems.length; _i < _len; _i++) {
       item = innerItems[_i];
       this.remove(item);
     }
+    navBar.reset();
     this.add(newView);
-    this.getNavigationBar().reset();
+    this.showSliderButton();
     return newView;
   }
 });

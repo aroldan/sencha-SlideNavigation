@@ -42,6 +42,14 @@ Ext.define("Ext.ux.slidenavigation.View", {
       }
     },
     /*
+            @cfg {Object} optional list wrapper configuration. If set, creates a new container for list that
+            contains the navigation list within it.
+            useful for adding additonal information or controls (buttons, version number labels, etc.)
+            to the navigation list.
+    */
+
+    listWrapper: null,
+    /*
             @cfg {Boolean} useTitleForBackButtonText
             Set to false if you always want to display the {@link #defaultBackButtonText} as the text
             on the back button. True if you want to use the previous views title.
@@ -126,24 +134,24 @@ Ext.define("Ext.ux.slidenavigation.View", {
             when an item in the list is selected.  Default is true.
     */
 
-    closeOnSelect: true
+    closeOnSelect: true,
+    slideButton: {}
   },
   initConfig: function() {
-    var existingStore, me;
-    me = this;
+    var existingStore;
     existingStore = void 0;
-    me._indexCount = 0;
+    this._indexCount = 0;
     /*
             Create the store.
     */
 
     existingStore = Ext.getStore("sliderNavigationStore");
     if (existingStore) {
-      me.store = existingStore;
-      me.store.removeAll();
+      this.store = existingStore;
+      this.store.removeAll();
     } else {
-      me.store = Ext.create("Ext.data.Store", {
-        model: me.getModel(),
+      this.store = Ext.create("Ext.data.Store", {
+        model: this.getModel(),
         sorters: "order",
         grouper: {
           property: "group",
@@ -156,41 +164,41 @@ Ext.define("Ext.ux.slidenavigation.View", {
             Add the items into the list.
     */
 
-    me.addItems(me.config.startItems || []);
-    me.callParent(arguments);
+    this.addItems(this.config.startItems || []);
+    this.callParent(arguments);
     /*
             This stores the instances of the components created.
             TODO: Support 'autoDestroy'.
             @private
     */
 
-    me._cache = {};
+    this._cache = {};
     /*
             Default config values used for creating a slideButton.
     */
 
-    return me.slideButtonDefaults = {
+    return this.slideButtonDefaults = {
       xtype: "button",
       iconMask: true,
       iconCls: "more",
       name: "slidebutton",
       listeners: {
-        release: me.toggleContainer,
-        scope: me
+        release: this.toggleContainer,
+        scope: this
       }
     };
   },
-  /*
-      To add the button into a toolbar, you can add the following
-      to any item in your navigation list.
-  */
-
   initialize: function() {
     this.callParent();
     this.addCls("x-slidenavigation");
     this.list = this.createNavigationList();
     this.container = this.createContainer();
-    this.add([this.list, this.container]);
+    if (this.config.listWrapper) {
+      this.listWrapper = this.createListWrapper();
+      this.add([this.listWrapper, this.container]);
+    } else {
+      this.add([this.list, this.container]);
+    }
     this.relayEvents(this.container, {
       add: "push",
       remove: "pop"
@@ -249,7 +257,7 @@ Ext.define("Ext.ux.slidenavigation.View", {
       config, see ``slideButtonDefaults``.
   */
 
-  createSlideButton: function(el, config) {
+  createSlideButton: function(config) {
     if (!(this.container.getSliderButton() != null)) {
       this.container.setSliderButton(Ext.create("Ext.Button", Ext.merge(this.slideButtonDefaults, config)));
     }
@@ -259,18 +267,15 @@ Ext.define("Ext.ux.slidenavigation.View", {
   */
 
   onSelect: function(list, item, eOpts) {
-    var container, index, me, store;
-    me = this;
+    var container, index, store;
     store = list.getStore();
     index = item.raw.index;
-    container = me.container;
+    container = this.container;
     if (Ext.isFunction(item.raw.handler)) {
       item.raw.handler();
     } else {
-      this.reRoot(Ext.merge(me.config.defaults, item.raw));
-      if (item.raw.slideButton) {
-        this.createSlideButton(item.raw, item.raw.slideButton);
-      }
+      this.reRoot(Ext.merge(this.config.defaults, item.raw));
+      this.createSlideButton(this.config.slideButton);
     }
     if (this.config.closeOnSelect) {
       this.closeContainer(this.config.selectSlideDuration);
@@ -426,6 +431,12 @@ Ext.define("Ext.ux.slidenavigation.View", {
     } else {
       return this.container.addCls("open");
     }
+  },
+  createListWrapper: function() {
+    var wrapper;
+    wrapper = Ext.create("Ext.Container", Ext.merge({}, this.config.listWrapper));
+    wrapper.add(this.list);
+    return wrapper;
   },
   /*
       Generates a new Ext.dataview.List object to be used for displaying
