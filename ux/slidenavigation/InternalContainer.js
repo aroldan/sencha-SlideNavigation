@@ -85,14 +85,14 @@ Ext.define("Ext.ux.slidenavigation.InternalContainer", {
 
   beforePop: function(count) {
     var i, innerItems, ln, me, toRemove;
+    if (count == null) {
+      count = 1;
+    }
     me = this;
     innerItems = this.getInnerItems();
     ln = innerItems.length;
     toRemove = void 0;
     i = void 0;
-    if (!Ext.isNumber(count) || count < 1) {
-      count = 1;
-    }
     count = Math.min(count, ln - 1);
     if (count) {
       me.getNavigationBar().beforePop(count);
@@ -208,11 +208,39 @@ Ext.define("Ext.ux.slidenavigation.InternalContainer", {
     return this.callParent(arguments);
   },
   /*
+      Removes the current active view from the stack and sets the previous view using the default animation
+      of this view.
+      @param {Number} count The number of views you want to pop
+      @return {Ext.Component} The new active item
+  */
+
+  pop: function(count) {
+    if (this.beforePop(count)) {
+      return this.doPop();
+    }
+  },
+  /*
       Resets the view by removing all items between the first and last item.
       @return {Ext.Component} The view that is now active
   */
 
   reset: function() {
     return this.pop(this.getInnerItems().length);
+  },
+  /*
+      Does a "hard reset" of the navigation view and adds a new "base item."
+      @return {Ext.Component} The view that is now active
+  */
+
+  hardResetWithView: function(newView) {
+    var innerItems, item, _i, _len;
+    innerItems = this.getInnerItems();
+    for (_i = 0, _len = innerItems.length; _i < _len; _i++) {
+      item = innerItems[_i];
+      this.remove(item);
+    }
+    this.add(newView);
+    this.getNavigationBar().reset();
+    return newView;
   }
 });

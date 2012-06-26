@@ -250,10 +250,9 @@ Ext.define("Ext.ux.slidenavigation.View", {
   */
 
   createSlideButton: function(el, config) {
-    var me;
-    me = this;
-    return this.container.setSliderButton(Ext.create("Ext.Button", Ext.merge(me.slideButtonDefaults, config)));
-    return false;
+    if (!(this.container.getSliderButton() != null)) {
+      this.container.setSliderButton(Ext.create("Ext.Button", Ext.merge(this.slideButtonDefaults, config)));
+    }
   },
   /*
       Called when an item in the list is tapped.
@@ -265,21 +264,13 @@ Ext.define("Ext.ux.slidenavigation.View", {
     store = list.getStore();
     index = item.raw.index;
     container = me.container;
-    if (me._cache[index] === undefined) {
-      if (Ext.isFunction(item.raw.handler)) {
-        me._cache[index] = item.raw.handler;
-      } else {
-        console.log(container.getActiveItem());
-        me._cache[index] = container.add(Ext.merge(me.config.defaults, item.raw));
-        if (item.raw.slideButton || false) {
-          me.createSlideButton(me._cache[index], item.raw.slideButton);
-        }
-      }
-    }
-    if (Ext.isFunction(this._cache[index])) {
-      this._cache[index](this);
+    if (Ext.isFunction(item.raw.handler)) {
+      item.raw.handler();
     } else {
-      container.setActiveItem(this._cache[index]);
+      this.reRoot(Ext.merge(me.config.defaults, item.raw));
+      if (item.raw.slideButton) {
+        this.createSlideButton(item.raw, item.raw.slideButton);
+      }
     }
     if (this.config.closeOnSelect) {
       this.closeContainer(this.config.selectSlideDuration);
@@ -555,6 +546,14 @@ Ext.define("Ext.ux.slidenavigation.View", {
 
   reset: function() {
     return this.container.reset();
+  },
+  /*
+      Reset the "root" of the internal container NavigationView
+      @return {Ext.Component} the view that is now active
+  */
+
+  reRoot: function(view) {
+    return this.container.hardResetWithView(view);
   },
   /*
       Called upon destroying the view. Destroys all child objects of the view

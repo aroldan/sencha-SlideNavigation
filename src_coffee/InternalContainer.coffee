@@ -80,20 +80,17 @@ Ext.define "Ext.ux.slidenavigation.InternalContainer",
     item. If it does, it removes those views from the stack and returns `true`.
     @return {Boolean} True if it has removed views
     ###
-    beforePop: (count) ->
+    beforePop: (count = 1) ->
         me = this
         innerItems = @getInnerItems()
         ln = innerItems.length
         toRemove = undefined
         i = undefined
         
-        #default to 1 pop
-        count = 1  if not Ext.isNumber(count) or count < 1
-        
         #check if we are trying to remove more items than we have
         count = Math.min(count, ln - 1)
         if count
-            
+        
             #we need to reset the backButtonStack in the navigation bar
             me.getNavigationBar().beforePop count
             
@@ -138,7 +135,9 @@ Ext.define "Ext.ux.slidenavigation.InternalContainer",
         if not @isItemsInitializing and item.isInnerItem()
             @setActiveItem item
             @getNavigationBar().onViewAdd this, item, index
-        @fireEvent "add", this, item, index  if @initialized
+
+        if @initialized
+            @fireEvent "add", this, item, index
 
     
     ###
@@ -152,7 +151,7 @@ Ext.define "Ext.ux.slidenavigation.InternalContainer",
         me.getItems()
         
         # If we are not initialzed yet, we should set the active item to the last item in the stack
-        activeItem = innerItems.length - 1  unless me.initialized
+        activeItem = innerItems.length - 1 unless me.initialized
         @callParent [ activeItem, currentActiveItem ]
 
     
@@ -193,8 +192,32 @@ Ext.define "Ext.ux.slidenavigation.InternalContainer",
 
     
     ###
+    Removes the current active view from the stack and sets the previous view using the default animation
+    of this view.
+    @param {Number} count The number of views you want to pop
+    @return {Ext.Component} The new active item
+    ###
+    pop: (count) ->
+        if @beforePop(count)
+            @doPop()  
+
+    ###
     Resets the view by removing all items between the first and last item.
     @return {Ext.Component} The view that is now active
     ###
     reset: ->
         @pop @getInnerItems().length
+
+    ###
+    Does a "hard reset" of the navigation view and adds a new "base item."
+    @return {Ext.Component} The view that is now active
+    ###
+    hardResetWithView : (newView) ->
+        innerItems = @getInnerItems()
+        for item in innerItems
+            @remove(item)
+
+        @add(newView)
+        @getNavigationBar().reset() # reset nav bar too
+
+        newView

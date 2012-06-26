@@ -1,10 +1,10 @@
 Ext.define "Ext.ux.slidenavigation.NavigationBar",
     extend: 'Ext.navigation.Bar'
 
-    onViewAdd: (view, item) ->
-        console.log view
-        @callParent(arguments)
-
-    updateView: (newView) ->
-        console.log newView
-        @callParent(arguments)
+    ###
+    Resets the navigation bar back button stack. Useful when clearing and "re-rooting"
+    the navigation view.
+    ###
+    reset: ->
+        @backButtonStack = [] # clear BB stack
+        return

@@ -1,12 +1,12 @@
 
 Ext.define("Ext.ux.slidenavigation.NavigationBar", {
   extend: 'Ext.navigation.Bar',
-  onViewAdd: function(view, item) {
-    console.log(view);
-    return this.callParent(arguments);
-  },
-  updateView: function(newView) {
-    console.log(newView);
-    return this.callParent(arguments);
+  /*
+      Resets the navigation bar back button stack. Useful when clearing and "re-rooting"
+      the navigation view.
+  */
+
+  reset: function() {
+    this.backButtonStack = [];
   }
 });

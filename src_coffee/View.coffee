@@ -255,9 +255,9 @@ Ext.define "Ext.ux.slidenavigation.View",
     config, see ``slideButtonDefaults``.
     ###
     createSlideButton: (el, config) ->
-        me = this
-        return @container.setSliderButton(Ext.create("Ext.Button", Ext.merge(me.slideButtonDefaults, config)))
-        false
+        if !@container.getSliderButton()?
+            @container.setSliderButton(Ext.create("Ext.Button", Ext.merge(@slideButtonDefaults, config)))
+        return
 
     
     ###
@@ -268,25 +268,14 @@ Ext.define "Ext.ux.slidenavigation.View",
         store = list.getStore()
         index = item.raw.index
         container = me.container
-        if me._cache[index] is `undefined`
-            
-            #container = this.down('container[cls="x-slidenavigation-container"]');
-            
-            # If the object has a handler defined, then we don't need to
-            # create an Ext object
-            if Ext.isFunction(item.raw.handler)
-                me._cache[index] = item.raw.handler
-            else
-                console.log container.getActiveItem()
-                me._cache[index] = container.add(Ext.merge(me.config.defaults, item.raw))
-                
-                # Add a button for controlling the slide, if desired
-                me.createSlideButton me._cache[index], item.raw.slideButton  if item.raw.slideButton or false
 
-        if Ext.isFunction(@_cache[index])
-            @_cache[index] this
+        if Ext.isFunction item.raw.handler
+            item.raw.handler()
         else
-            container.setActiveItem @_cache[index]
+            @reRoot Ext.merge(me.config.defaults, item.raw)
+
+            if item.raw.slideButton
+                @createSlideButton item.raw, item.raw.slideButton
 
         if @config.closeOnSelect
             @closeContainer @config.selectSlideDuration
@@ -545,6 +534,12 @@ Ext.define "Ext.ux.slidenavigation.View",
     reset: ->
         @container.reset()
 
+    ###
+    Reset the "root" of the internal container NavigationView
+    @return {Ext.Component} the view that is now active
+    ###
+    reRoot: (view) ->
+        @container.hardResetWithView(view)
     
     ###
     Called upon destroying the view. Destroys all child objects of the view
