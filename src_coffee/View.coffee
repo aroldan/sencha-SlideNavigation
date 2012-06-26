@@ -260,7 +260,7 @@ Ext.define "Ext.ux.slidenavigation.View",
         container = @container
 
         if Ext.isFunction item.raw.handler
-            item.raw.handler()
+            item.raw.handler(this)
         else
             @reRoot Ext.merge(@config.defaults, item.raw)
 

@@ -259,7 +259,7 @@ Ext.define("Ext.ux.slidenavigation.View", {
     index = item.raw.index;
     container = this.container;
     if (Ext.isFunction(item.raw.handler)) {
-      item.raw.handler();
+      item.raw.handler(this);
     } else {
       this.reRoot(Ext.merge(this.config.defaults, item.raw));
       this.createSlideButton(this.config.slideButton);
