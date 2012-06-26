@@ -42,14 +42,6 @@ Ext.define("Ext.ux.slidenavigation.View", {
       }
     },
     /*
-            @cfg {Object} optional list wrapper configuration. If set, creates a new container for list that
-            contains the navigation list within it.
-            useful for adding additonal information or controls (buttons, version number labels, etc.)
-            to the navigation list.
-    */
-
-    listWrapper: null,
-    /*
             @cfg {Boolean} useTitleForBackButtonText
             Set to false if you always want to display the {@link #defaultBackButtonText} as the text
             on the back button. True if you want to use the previous views title.
@@ -193,12 +185,7 @@ Ext.define("Ext.ux.slidenavigation.View", {
     this.addCls("x-slidenavigation");
     this.list = this.createNavigationList();
     this.container = this.createContainer();
-    if (this.config.listWrapper) {
-      this.listWrapper = this.createListWrapper();
-      this.add([this.listWrapper, this.container]);
-    } else {
-      this.add([this.list, this.container]);
-    }
+    this.add([this.list, this.container]);
     this.relayEvents(this.container, {
       add: "push",
       remove: "pop"
@@ -280,9 +267,9 @@ Ext.define("Ext.ux.slidenavigation.View", {
     if (this.config.closeOnSelect) {
       this.closeContainer(this.config.selectSlideDuration);
     }
-    return Ext.defer((function() {
+    return Ext.defer(function() {
       return list.deselectAll();
-    }), 50);
+    }, 50);
   },
   onContainerDrag: function(draggable, e, offset, eOpts) {
     if (offset.x < 1) {
@@ -431,12 +418,6 @@ Ext.define("Ext.ux.slidenavigation.View", {
     } else {
       return this.container.addCls("open");
     }
-  },
-  createListWrapper: function() {
-    var wrapper;
-    wrapper = Ext.create("Ext.Container", Ext.merge({}, this.config.listWrapper));
-    wrapper.add(this.list);
-    return wrapper;
   },
   /*
       Generates a new Ext.dataview.List object to be used for displaying

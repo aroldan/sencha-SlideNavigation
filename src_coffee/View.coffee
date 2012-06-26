@@ -47,15 +47,6 @@ Ext.define "Ext.ux.slidenavigation.View",
                 easing: "ease-out"
                 type: "slide"
                 direction: "left"
-
-
-        ###
-        @cfg {Object} optional list wrapper configuration. If set, creates a new container for list that
-        contains the navigation list within it.
-        useful for adding additonal information or controls (buttons, version number labels, etc.)
-        to the navigation list.
-        ###
-        listWrapper: null
         
         ###
         @cfg {Boolean} useTitleForBackButtonText
@@ -198,11 +189,7 @@ Ext.define "Ext.ux.slidenavigation.View",
         @list = @createNavigationList()
         @container = @createContainer()
 
-        if @config.listWrapper
-            @listWrapper = @createListWrapper()
-            @add [ @listWrapper, @container ]
-        else
-            @add [ @list, @container ]
+        @add [ @list, @container ]
 
         @relayEvents @container,
             add: "push"
@@ -282,9 +269,9 @@ Ext.define "Ext.ux.slidenavigation.View",
         if @config.closeOnSelect
             @closeContainer @config.selectSlideDuration
 
-        Ext.defer (-> # prevent immediate de-selection to stop multi-taps
+        Ext.defer -> # prevent immediate de-selection to stop multi-taps
             list.deselectAll()
-        ), 50
+        , 50
 
     onContainerDrag: (draggable, e, offset, eOpts) ->
         if offset.x < 1
@@ -407,11 +394,6 @@ Ext.define "Ext.ux.slidenavigation.View",
         else
             @container.addCls "open"
 
-    createListWrapper: () ->
-        wrapper = Ext.create "Ext.Container", Ext.merge({}, @config.listWrapper)
-        wrapper.add(@list)
-        wrapper 
-    
     ###
     Generates a new Ext.dataview.List object to be used for displaying
     the navigation items.

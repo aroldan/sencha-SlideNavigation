@@ -43,6 +43,7 @@ Ext.define("SlideNavigationExample.view.Main", {
                     width: 200,
                     left: 0
                 },
+
                 
                 /**
                  *  Here's an example of how to add a different type of
@@ -55,7 +56,8 @@ Ext.define("SlideNavigationExample.view.Main", {
                     width: 180
                 }]
                 */
-            }]
+            }
+            ]
             
         },
         
