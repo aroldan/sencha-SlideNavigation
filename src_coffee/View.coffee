@@ -164,12 +164,7 @@ Ext.define "Ext.ux.slidenavigation.View",
         @addItems @config.startItems or []
         @callParent arguments
         
-        ###
-        This stores the instances of the components created.
-        TODO: Support 'autoDestroy'.
-        @private
-        ###
-        @_cache = {}
+        @currentIndex = null;
         
         ###
         Default config values used for creating a slideButton.
@@ -262,16 +257,20 @@ Ext.define "Ext.ux.slidenavigation.View",
         if Ext.isFunction item.raw.handler
             item.raw.handler(this)
         else
-            @reRoot Ext.merge(@config.defaults, item.raw)
+            if @currentIndex != index
+                @reRoot Ext.merge(@config.defaults, item.raw)
+                @currentIndex = index
 
-            @createSlideButton @config.slideButton
+                @createSlideButton @config.slideButton
 
         if @config.closeOnSelect
             @closeContainer @config.selectSlideDuration
 
         Ext.defer -> # prevent immediate de-selection to stop multi-taps
             list.deselectAll()
+            return
         , 50
+        return
 
     onContainerDrag: (draggable, e, offset, eOpts) ->
         if offset.x < 1

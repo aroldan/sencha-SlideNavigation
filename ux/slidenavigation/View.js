@@ -158,13 +158,7 @@ Ext.define("Ext.ux.slidenavigation.View", {
 
     this.addItems(this.config.startItems || []);
     this.callParent(arguments);
-    /*
-            This stores the instances of the components created.
-            TODO: Support 'autoDestroy'.
-            @private
-    */
-
-    this._cache = {};
+    this.currentIndex = null;
     /*
             Default config values used for creating a slideButton.
     */
@@ -261,14 +255,17 @@ Ext.define("Ext.ux.slidenavigation.View", {
     if (Ext.isFunction(item.raw.handler)) {
       item.raw.handler(this);
     } else {
-      this.reRoot(Ext.merge(this.config.defaults, item.raw));
-      this.createSlideButton(this.config.slideButton);
+      if (this.currentIndex !== index) {
+        this.reRoot(Ext.merge(this.config.defaults, item.raw));
+        this.currentIndex = index;
+        this.createSlideButton(this.config.slideButton);
+      }
     }
     if (this.config.closeOnSelect) {
       this.closeContainer(this.config.selectSlideDuration);
     }
-    return Ext.defer(function() {
-      return list.deselectAll();
+    Ext.defer(function() {
+      list.deselectAll();
     }, 50);
   },
   onContainerDrag: function(draggable, e, offset, eOpts) {
