@@ -521,3 +521,10 @@ Ext.define "Ext.ux.slidenavigation.View",
         Ext.Object.each @_cache, (key, value) ->
             value.destroy()  if Ext.isObject(value) and Ext.isFunction(value.destroy)
 
+    ###
+    Update this container's title with the provided string.
+    Useful when updating the title of drilldown views.
+    ###
+    updateTitle: (s) ->
+        @container.getNavigationBar().setTitle(s)
+

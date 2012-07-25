@@ -557,5 +557,13 @@ Ext.define("Ext.ux.slidenavigation.View", {
         return value.destroy();
       }
     });
+  },
+  /*
+      Update this container's title with the provided string.
+      Useful when updating the title of drilldown views.
+  */
+
+  updateTitle: function(s) {
+    return this.container.getNavigationBar().setTitle(s);
   }
 });
