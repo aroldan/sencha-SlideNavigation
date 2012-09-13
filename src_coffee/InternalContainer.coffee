@@ -161,9 +161,8 @@ Ext.define "Ext.ux.slidenavigation.InternalContainer",
     @return {Mixed} The previous view
     ###
     getPreviousItem: ->
-        innerItems = @container.getInnerItems()
+        innerItems = @getInnerItems()
         innerItems[innerItems.length - 2]
-
     
     ###
     @private

@@ -170,7 +170,7 @@ Ext.define("Ext.ux.slidenavigation.InternalContainer", {
 
   getPreviousItem: function() {
     var innerItems;
-    innerItems = this.container.getInnerItems();
+    innerItems = this.getInnerItems();
     return innerItems[innerItems.length - 2];
   },
   /*
