@@ -134,6 +134,8 @@ Ext.define "Ext.ux.slidenavigation.View",
         ###
         closeOnSelect: true
 
+        shadowStyle: '0 0 4px 1px #999'
+
         slideButton: {}
 
     initConfig: ->
@@ -179,12 +181,16 @@ Ext.define "Ext.ux.slidenavigation.View",
                 scope: @
 
     initialize: ->
+        @__init = false
+
         @callParent()
         @addCls "x-slidenavigation"
         @list = @createNavigationList()
         @container = @createContainer()
 
         @add [ @list, @container ]
+
+        @createContainerCSS()
 
         @relayEvents @container,
             add: "push"
@@ -193,6 +199,8 @@ Ext.define "Ext.ux.slidenavigation.View",
         # TODO: Make this optional, perhaps by defining
         # "selected: true" in the items list
         @list.select 0
+
+        @__init = true
 
     
     ###
@@ -208,6 +216,24 @@ Ext.define "Ext.ux.slidenavigation.View",
                 me._indexCount++
             me.store.add item
 
+
+    createContainerCSS: ->
+        shadowStyle = @getShadowStyle()
+        id = @getId()
+
+        if shadowStyle
+            if !document.getElementById id
+                style = document.createElement 'style'
+                style.type = 'text/css'
+                style.id = id
+                style.innerHTML = """
+                .x-slidenavigation-container.x-dragging,
+                .x-slidenavigation-container.open {
+                    box-shadow: #{shadowStyle};
+                    -webkit-box-shadow:#{shadowStyle};
+                }
+                """
+                document.getElementsByTagName('head')[0].appendChild style
 
     
     ###
@@ -284,6 +310,7 @@ Ext.define "Ext.ux.slidenavigation.View",
             return true
         if @config.slideSelector
             node = e.target
+            @fireEvent 'dragstart', @
             return true  if node.className and node.className.indexOf(@config.slideSelector) > -1  while node = node.parentNode
             return false
         false
@@ -334,6 +361,8 @@ Ext.define "Ext.ux.slidenavigation.View",
         duration = duration or @config.slideDuration
         @moveContainer 0, duration
         @fireEvent "listClose"
+        if @__init
+            @fireAction 'close', [@, 0, duration], 'moveContainer', @
 
     
     ###
@@ -398,12 +427,20 @@ Ext.define "Ext.ux.slidenavigation.View",
     the navigation items.
     ###
     createNavigationList: (store) ->
-        Ext.create "Ext.dataview.List", Ext.merge({}, @config.list,
+        listConfig = @getList()
+
+        if listConfig.width
+            if !listConfig.minWidth?
+                listConfig.minWidth = listConfig.width
+            delete listConfig.width
+
+        Ext.create "Ext.dataview.List", Ext.merge({}, listConfig,
             store: @store
             docked: "left"
             cls: "x-slidenavigation-list"
-            style: "position: absolute; top: 0; left: 0; height: 100%;" + "width: 100% !important;"
-            zIndex: 1
+            style: "position: absolute; top: 0; left: 0; height: 100%;"
+            zIndex: 2
+            width: '100%'
             listeners:
                 select: @onSelect
                 scope: this

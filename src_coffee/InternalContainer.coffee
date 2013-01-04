@@ -7,7 +7,7 @@ Ext.define "Ext.ux.slidenavigation.InternalContainer",
     config:
         docked: "left"
         cls: "x-slidenavigation-container"
-        style: "width: 100%; height: 100%; position: absolute; opacity: 1;"
+        style: "width: 100%; height: 100%; position: absolute; opacity: 1; z-index:5;"
         layout: "card"
         xtype: "slidenavigationviewinternalcontainer"
         requires: [ "Ext.navigation.Bar" ]

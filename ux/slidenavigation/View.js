@@ -127,6 +127,7 @@ Ext.define("Ext.ux.slidenavigation.View", {
     */
 
     closeOnSelect: true,
+    shadowStyle: '0 0 4px 1px #999',
     slideButton: {}
   },
   initConfig: function() {
@@ -175,16 +176,19 @@ Ext.define("Ext.ux.slidenavigation.View", {
     };
   },
   initialize: function() {
+    this.__init = false;
     this.callParent();
     this.addCls("x-slidenavigation");
     this.list = this.createNavigationList();
     this.container = this.createContainer();
     this.add([this.list, this.container]);
+    this.createContainerCSS();
     this.relayEvents(this.container, {
       add: "push",
       remove: "pop"
     });
-    return this.list.select(0);
+    this.list.select(0);
+    return this.__init = true;
   },
   /*
       Adds an array of items (or a single item) into the list.
@@ -202,6 +206,20 @@ Ext.define("Ext.ux.slidenavigation.View", {
       }
       return me.store.add(item);
     });
+  },
+  createContainerCSS: function() {
+    var id, shadowStyle, style;
+    shadowStyle = this.getShadowStyle();
+    id = this.getId();
+    if (shadowStyle) {
+      if (!document.getElementById(id)) {
+        style = document.createElement('style');
+        style.type = 'text/css';
+        style.id = id;
+        style.innerHTML = ".x-slidenavigation-container.x-dragging,\n.x-slidenavigation-container.open {\n    box-shadow: " + shadowStyle + ";\n    -webkit-box-shadow:" + shadowStyle + ";\n}";
+        return document.getElementsByTagName('head')[0].appendChild(style);
+      }
+    }
   },
   /*
       If an item with the given title exists in the list, remove it.
@@ -285,6 +303,7 @@ Ext.define("Ext.ux.slidenavigation.View", {
     }
     if (this.config.slideSelector) {
       node = e.target;
+      this.fireEvent('dragstart', this);
       if ((function() {
         var _results;
         _results = [];
@@ -353,7 +372,10 @@ Ext.define("Ext.ux.slidenavigation.View", {
   closeContainer: function(duration) {
     duration = duration || this.config.slideDuration;
     this.moveContainer(0, duration);
-    return this.fireEvent("listClose");
+    this.fireEvent("listClose");
+    if (this.__init) {
+      return this.fireAction('close', [this, 0, duration], 'moveContainer', this);
+    }
   },
   /*
       Opens the container.  See ``moveContainer`` for more details.
@@ -422,12 +444,21 @@ Ext.define("Ext.ux.slidenavigation.View", {
   */
 
   createNavigationList: function(store) {
-    return Ext.create("Ext.dataview.List", Ext.merge({}, this.config.list, {
+    var listConfig;
+    listConfig = this.getList();
+    if (listConfig.width) {
+      if (!(listConfig.minWidth != null)) {
+        listConfig.minWidth = listConfig.width;
+      }
+      delete listConfig.width;
+    }
+    return Ext.create("Ext.dataview.List", Ext.merge({}, listConfig, {
       store: this.store,
       docked: "left",
       cls: "x-slidenavigation-list",
-      style: "position: absolute; top: 0; left: 0; height: 100%;" + "width: 100% !important;",
-      zIndex: 1,
+      style: "position: absolute; top: 0; left: 0; height: 100%;",
+      zIndex: 2,
+      width: '100%',
       listeners: {
         select: this.onSelect,
         scope: this
