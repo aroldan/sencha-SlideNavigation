@@ -39,14 +39,6 @@ Ext.define "Ext.ux.slidenavigation.View",
                 docked: "top"
                 ui: "light"
             ]
-
-        layout:
-            type: "card"
-            animation:
-                duration: 300
-                easing: "ease-out"
-                type: "slide"
-                direction: "left"
         
         ###
         @cfg {Boolean} useTitleForBackButtonText
@@ -438,8 +430,7 @@ Ext.define "Ext.ux.slidenavigation.View",
             store: @store
             docked: "left"
             cls: "x-slidenavigation-list"
-            style: "position: absolute; top: 0; left: 0; height: 100%;"
-            zIndex: 2
+            style: "position: absolute; top: 0; left: 0; height: 100%; z-index: 2;"
             width: '100%'
             listeners:
                 select: @onSelect
@@ -455,14 +446,7 @@ Ext.define "Ext.ux.slidenavigation.View",
     createContainer: ->
         parent = this
         cont = Ext.create("Ext.ux.slidenavigation.InternalContainer", Ext.merge({}, @config.container,
-            layout:
-                type: "card"
-                animation:
-                    duration: 300
-                    easing: "ease-out"
-                    type: "slide"
-                    direction: "left"
-
+            layout: "card"
             draggable:
                 direction: "horizontal"
                 constraint:

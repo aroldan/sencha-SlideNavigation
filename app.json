@@ -4,6 +4,10 @@
      */
     "name": "SlideNavigationExample",
 
+    "indexHtmlPath": "index.html",
+
+    "url": null,
+
     /**
      * List of all JavaScript assets in the right execution order.
      * Each item is an object with the following format:
@@ -19,7 +23,7 @@
      */
     "js": [
         {
-            "path": "sdk/sencha-touch-all.js"
+            "path": "touch/sencha-touch-all.js"
         },
         {
             "path": "app.js",

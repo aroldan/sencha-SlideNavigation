@@ -32,15 +32,6 @@ Ext.define("Ext.ux.slidenavigation.View", {
         }
       ]
     },
-    layout: {
-      type: "card",
-      animation: {
-        duration: 300,
-        easing: "ease-out",
-        type: "slide",
-        direction: "left"
-      }
-    },
     /*
             @cfg {Boolean} useTitleForBackButtonText
             Set to false if you always want to display the {@link #defaultBackButtonText} as the text
@@ -456,8 +447,7 @@ Ext.define("Ext.ux.slidenavigation.View", {
       store: this.store,
       docked: "left",
       cls: "x-slidenavigation-list",
-      style: "position: absolute; top: 0; left: 0; height: 100%;",
-      zIndex: 2,
+      style: "position: absolute; top: 0; left: 0; height: 100%; z-index: 2;",
       width: '100%',
       listeners: {
         select: this.onSelect,
@@ -475,15 +465,7 @@ Ext.define("Ext.ux.slidenavigation.View", {
     var cont, parent;
     parent = this;
     cont = Ext.create("Ext.ux.slidenavigation.InternalContainer", Ext.merge({}, this.config.container, {
-      layout: {
-        type: "card",
-        animation: {
-          duration: 300,
-          easing: "ease-out",
-          type: "slide",
-          direction: "left"
-        }
-      },
+      layout: "card",
       draggable: {
         direction: "horizontal",
         constraint: {
